@@ -75,19 +75,20 @@ int main() {
             }
 
         }
-        if(u.get(150, 10, k) != 0 && !yet){
+        if(u.get(150, 20, k) <= -0.1 && !yet){
             yet = true;
             cout << "Onda atinge o contorno em k = " << k << " valendo: "<< u.get(150, 0, k) << endl;
         }
     }
     
     string base(".dat");
-    for(int k = 1300; k < 1500; k += 5){
-        myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data/data" + to_string(k/100) + base);
+    for(int k = 2000; k < 3000; k += 10){
+        myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data/data" + to_string((k%2000)/10) + base);
         for (int j = 0; j < Nz; j++){
             for (int i = 0; i < Nx; i++){
                 myfile << i << " " << j << " " 
                 << std::setprecision(17) << u.get(i, j, k) << "\n";
+                
             }
             myfile << "\n\n";
         }
@@ -106,7 +107,7 @@ float fonte(int x, int z, float t, float fp, float xs, float zs){
 }
 
 float cerjan(int x, int z, int Nx, int Nz, float P0){
-    int n = 20;
+    int n = 15;
     if (x < n){
         return P0 / pow(M_e, pow(0.98*(n - x), 2));
     } else if (x > Nx - n){
