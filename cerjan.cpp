@@ -101,8 +101,7 @@ float fonte(int x, int z, float t, float fp, float xs, float zs){
     if (x != xs || z != zs){
         return 0;
     }    
-    return (1.0 - 2*pow(M_PI*fp*t, 2))/
-    pow(M_e, pow((M_PI*fp*t), 2));
+    return (1.0 - 2*pow(M_PI*fp*t, 2))/pow(M_e, pow((M_PI*fp*t), 2));
 }
 
 float cerjan(int x, int z, int Nx, int Nz, float P0){
