@@ -82,8 +82,8 @@ int main() {
     }
     
     string base(".dat");
-    for(int k = 0; k < Nt; k += 100){
-        myfile.open("/home/antonio/Desktop/Modelagem Acustica Bidimensional/data/data" + to_string(k/100) + base);
+    for(int k = 1300; k < 1500; k += 5){
+        myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data/data" + to_string(k/100) + base);
         for (int j = 0; j < Nz; j++){
             for (int i = 0; i < Nx; i++){
                 myfile << i << " " << j << " " 
