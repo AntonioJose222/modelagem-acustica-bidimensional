@@ -16,7 +16,7 @@ int main() {
     float Z = 3000; //Altura do dominio em m
     float T = 1;    //Tempo total em s
     float c = 2200;  //Celeridade da onda em m/s
-    float fp = 40;  //frequencia de pico = 80Hz
+    float fcorte = 40;  //frequencia de pico = 80Hz
 
     float alpha = 5;
     float beta = 5;
@@ -40,7 +40,7 @@ int main() {
 
     float val;
 
-    float fonte(int x, int z, float t, float fp, float xs, float zs);
+    float fonte(int x, int z, float t, float fcorte, float xs, float zs);
     float cerjan(int x, int z, int Nx, int Nz, float P0);//funcao usada para impedir reflexoes nas bordas
 
     bool yet = false;
@@ -49,7 +49,7 @@ int main() {
 
     ofstream myfile;
     
-    u.set(xs, zs, 0, fonte(xs, zs, 0, fp, xs, zs));
+    u.set(xs, zs, 0, fonte(xs, zs, 0, fcorte, xs, zs));
     
     for (int k = 1; k < Nt - 1; k++){
 
@@ -66,7 +66,7 @@ int main() {
                     (u.get(i + 2, j, k) + u.get(i, j + 2, k)) 
                 )
                 + 2*u.get(i, j, k) - u.get(i, j, k - 1) - 
-                pow(c*dt, 2) * fonte(i, j, (float)k*dt, fp, xs, zs);
+                pow(c*dt, 2) * fonte(i, j, (float)k*dt, fcorte, xs, zs);
 
                 val = cerjan(i, j, Nx, Nz, val);
 
@@ -75,38 +75,35 @@ int main() {
             }
 
         }
-        if(u.get(150, 20, k) <= -0.1 && !yet){
-            yet = true;
-            cout << "Onda atinge o contorno em k = " << k << " valendo: "<< u.get(150, 0, k) << endl;
-        }
+
     }
     
-    string base(".dat");
-    for(int k = 2000; k < 3000; k += 10){
-        myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data/data" + to_string((k%2000)/10) + base);
-        for (int j = 0; j < Nz; j++){
-            for (int i = 0; i < Nx; i++){
-                myfile << i << " " << j << " " 
-                << std::setprecision(17) << u.get(i, j, k) << "\n";
-                
-            }
-            myfile << "\n\n";
-        }
-        myfile.close();
-    }
+    myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data1d/data.dat");
+    for(int k = 0; k < Nt; k += 50){
+        
 
+        for (int i = 0; i < Nx; i++){
+            myfile << i << " " << std::setprecision(17) << u.get(i, 150, k) << "\n";
+            
+        }
+        myfile << "\n\n";
+    }
+    myfile.close();
 }
 
-float fonte(int x, int z, float t, float fp, float xs, float zs){
+float fonte(int x, int z, float t, float fcorte, float xs, float zs){
+
+    float td = t;//t - ((2*sqrt(M_PI))/fcorte);
+    float fc = fcorte;//fcorte/(3*sqrt(M_PI));
 
     if (x != xs || z != zs){
         return 0;
     }    
-    return (1.0 - 2*pow(M_PI*fp*t, 2))/
-    pow(M_e, pow((M_PI*fp*t), 2));
+    return (1.0 - 2*pow(M_PI*fc*td, 2))/pow(M_e, pow((M_PI*fc*td), 2));
 }
 
 float cerjan(int x, int z, int Nx, int Nz, float P0){
+
     int n = 15;
     if (x < n){
         return P0 / pow(M_e, pow(0.98*(n - x), 2));
