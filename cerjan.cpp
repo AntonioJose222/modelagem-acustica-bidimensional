@@ -16,7 +16,7 @@ int main() {
     float Z = 3000; //Altura do dominio em m
     float T = 1;    //Tempo total em s
     float c = 2200;  //Celeridade da onda em m/s
-    float fcorte = 40;  //frequencia de pico = 80Hz
+    float fcorte = 40;  //frequencia de pico = 40Hz
 
     float alpha = 5;
     float beta = 5;
@@ -25,13 +25,13 @@ int main() {
     float dz = dx;  //Passos em z
     float dt = 0.00025;   //Passos no tempo
 
-    int Nx = 300; //Iteracoes em x
-    int Nz = 300; //Iteracoes em z
-    int Nt = T/dt+1; //Iteracoes no tempo
+    int Nx = X/dx; //Iteracoes em x
+    int Nz = Z/dz; //Iteracoes em z
+    int Nt = 300; //Iteracoes no tempo
 
     int xs = 150; //posicao da fonte em x
     int zs = 150; //posicao da fonte em z
-    float cou = c*dt/dx; //numero de courant
+    float cou = c*dt/dx; //numero de courant, para dx = dz
 
     cout << "Nx = " << Nx << endl;
     cout << "Nz = " << Nz << endl;
@@ -42,33 +42,37 @@ int main() {
 
     float fonte(int x, int z, float t, float fcorte, float xs, float zs);
     float cerjan(int x, int z, int Nx, int Nz, float P0);//funcao usada para impedir reflexoes nas bordas
+    void plot1d(int t1, int t2, int passo, Matriz3D u, int Nx);
 
     bool yet = false;
 
     Matriz3D u(Nx, Nz, Nt);
-
-    ofstream myfile;
     
     u.set(xs, zs, 0, fonte(xs, zs, 0, fcorte, xs, zs));
     
-    for (int k = 1; k < Nt - 1; k++){
+    for (int k = 0; k < Nt - 1; k++){
 
         for (int j = 0; j < Nz; j++){
 
             for (int i = 0; i < Nx; i++){
 
                 val = 
-                (1.0/12.0)*pow((cou), 2) * 
+                (pow(cou, 2)/12.0) *
                 (
                     -1*(u.get(i - 2, j, k) + u.get(i, j - 2, k)) + 
-                    16*(u.get(i - 1, j, k) + u.get(i, j - 1, k)) - 60 * u.get(i, j, k) +
+                    16*(u.get(i - 1, j, k) + u.get(i, j - 1, k)) - 
+                    60 * u.get(i, j, k) +
                     16*(u.get(i + 1, j, k) + u.get(i, j + 1, k)) -
                     (u.get(i + 2, j, k) + u.get(i, j + 2, k)) 
                 )
                 + 2*u.get(i, j, k) - u.get(i, j, k - 1) - 
-                pow(c*dt, 2) * fonte(i, j, (float)k*dt, fcorte, xs, zs);
+                pow(c*dt, 2) * fonte(i, j, k*dt, fcorte, xs, zs);
 
                 val = cerjan(i, j, Nx, Nz, val);
+
+                if(i == 150 && j == 150 && k <= 50){
+                    cout << "t = " << k*0.00025 << " fonte = " << fonte(i, j, k*dt, fcorte, xs, zs) << "; u = " << u.get(i, j, k) << endl;
+                }
 
                 u.set(i, j, k + 1, val);
             
@@ -78,9 +82,15 @@ int main() {
 
     }
     
+    plot1d(0, 200, 1, u, Nx);
+}
+
+void plot1d(int t1, int t2, int passo, Matriz3D u, int Nx){
+    
+    ofstream myfile;
+
     myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data1d/data.dat");
-    for(int k = 0; k < Nt; k += 50){
-        
+    for(int k = t1; k < t2; k += passo){
 
         for (int i = 0; i < Nx; i++){
             myfile << i << " " << std::setprecision(17) << u.get(i, 150, k) << "\n";
@@ -89,7 +99,10 @@ int main() {
         myfile << "\n\n";
     }
     myfile.close();
+
 }
+
+
 
 float fonte(int x, int z, float t, float fcorte, float xs, float zs){
 
@@ -98,8 +111,16 @@ float fonte(int x, int z, float t, float fcorte, float xs, float zs){
 
     if (x != xs || z != zs){
         return 0;
-    }    
-    return (1.0 - 2*pow(M_PI*fc*td, 2))/pow(M_e, pow((M_PI*fc*td), 2));
+    } 
+
+    float eq1 = (1.0 - 2.0 * M_PI * pow(M_PI * fc * td, 2));
+
+    float eq2 = pow(M_e, M_PI*pow((M_PI*fc*td), 2));
+
+    return eq1/eq2;
+
+    //return (1.0 - 2.0*M_PI*pow(M_PI*fc*td, 2))*pow(M_e, -1*M_PI*pow((M_PI*fc*td), 2));
+    //return (1.0 - 2*pow(M_PI*fcorte*t, 2))/pow(M_e, pow((M_PI*fcorte*t), 2));
 }
 
 float cerjan(int x, int z, int Nx, int Nz, float P0){
