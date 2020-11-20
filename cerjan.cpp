@@ -111,7 +111,6 @@ float fonte(int x, int z, float t, float fcorte, float xs, float zs){
 
     if (x != xs || z != zs){
         return 0;
-<<<<<<< HEAD
     } 
 
     float eq1 = (1.0 - 2.0 * M_PI * pow(M_PI * fc * td, 2));
@@ -122,10 +121,6 @@ float fonte(int x, int z, float t, float fcorte, float xs, float zs){
 
     //return (1.0 - 2.0*M_PI*pow(M_PI*fc*td, 2))*pow(M_e, -1*M_PI*pow((M_PI*fc*td), 2));
     //return (1.0 - 2*pow(M_PI*fcorte*t, 2))/pow(M_e, pow((M_PI*fcorte*t), 2));
-=======
-    }    
-    return (1.0 - 2*pow(M_PI*fp*t, 2))/pow(M_e, pow((M_PI*fp*t), 2));
->>>>>>> master
 }
 
 float cerjan(int x, int z, int Nx, int Nz, float P0){
