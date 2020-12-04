@@ -48,9 +48,11 @@ int main() {
 
     Matriz3D u(Nx, Nz, Nt);
     
-    u.set(xs, zs, 0, fonte(xs, zs, 0, fcorte, xs, zs));
+    //condicao inicial
+    //u.set(xs, zs, 0, fonte(xs, zs, 0, fcorte, xs, zs));
     
-    for (int k = 0; k < Nt - 1; k++){
+    //MDF
+    for (int k = -1; k < Nt - 1; k++){
 
         for (int j = 0; j < Nz; j++){
 
@@ -68,10 +70,11 @@ int main() {
                 + 2*u.get(i, j, k) - u.get(i, j, k - 1) - 
                 pow(c*dt, 2) * fonte(i, j, k*dt, fcorte, xs, zs);
 
-                val = cerjan(i, j, Nx, Nz, val);
+                //val = cerjan(i, j, Nx, Nz, val);
 
                 if(i == 150 && j == 150 && k <= 50){
-                    cout << "t = " << k*0.00025 << " fonte = " << fonte(i, j, k*dt, fcorte, xs, zs) << "; u = " << u.get(i, j, k) << endl;
+                    cout << "t = " << fixed << setprecision(5) << k*0.00025 << " fonte = " << fonte(i, j, k*dt, fcorte, xs, zs) 
+                    << "; u = " << u.get(i, j, k) << endl;
                 }
 
                 u.set(i, j, k + 1, val);
@@ -86,7 +89,7 @@ int main() {
 }
 
 void plot1d(int t1, int t2, int passo, Matriz3D u, int Nx){
-    
+
     ofstream myfile;
 
     myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data1d/data.dat");
@@ -102,12 +105,10 @@ void plot1d(int t1, int t2, int passo, Matriz3D u, int Nx){
 
 }
 
-
-
 float fonte(int x, int z, float t, float fcorte, float xs, float zs){
 
-    float td = t;//t - ((2*sqrt(M_PI))/fcorte);
-    float fc = fcorte;//fcorte/(3*sqrt(M_PI));
+    float td = t - ((2*sqrt(M_PI))/fcorte);
+    float fc = (fcorte/(3*sqrt(M_PI)));
 
     if (x != xs || z != zs){
         return 0;
@@ -119,8 +120,6 @@ float fonte(int x, int z, float t, float fcorte, float xs, float zs){
 
     return eq1/eq2;
 
-    //return (1.0 - 2.0*M_PI*pow(M_PI*fc*td, 2))*pow(M_e, -1*M_PI*pow((M_PI*fc*td), 2));
-    //return (1.0 - 2*pow(M_PI*fcorte*t, 2))/pow(M_e, pow((M_PI*fcorte*t), 2));
 }
 
 float cerjan(int x, int z, int Nx, int Nz, float P0){
