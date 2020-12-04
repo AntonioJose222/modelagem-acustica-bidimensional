@@ -27,7 +27,7 @@ int main() {
 
     int Nx = X/dx; //Iteracoes em x
     int Nz = Z/dz; //Iteracoes em z
-    int Nt = 300; //Iteracoes no tempo
+    int Nt = T/dt; //Iteracoes no tempo
 
     int xs = 150; //posicao da fonte em x
     int zs = 150; //posicao da fonte em z
@@ -47,6 +47,7 @@ int main() {
     bool yet = false;
 
     Matriz3D u(Nx, Nz, Nt);
+    ofstream myfile;
     
     //condicao inicial
     //u.set(xs, zs, 0, fonte(xs, zs, 0, fcorte, xs, zs));
@@ -71,11 +72,11 @@ int main() {
                 pow(c*dt, 2) * fonte(i, j, k*dt, fcorte, xs, zs);
 
                 //val = cerjan(i, j, Nx, Nz, val);
-
+                /*
                 if(i == 150 && j == 150 && k <= 50){
                     cout << "t = " << fixed << setprecision(5) << k*0.00025 << " fonte = " << fonte(i, j, k*dt, fcorte, xs, zs) 
                     << "; u = " << u.get(i, j, k) << endl;
-                }
+                }*/
 
                 u.set(i, j, k + 1, val);
             
@@ -85,7 +86,18 @@ int main() {
 
     }
     
-    plot1d(0, 200, 1, u, Nx);
+    string base(".dat");
+    for(int k = 0; k < Nt; k += 50){
+        myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data/data" + to_string(k/50) + base);
+        for (int j = 0; j < Nz; j++){
+            for (int i = 0; i < Nx; i++){
+                myfile << i << " " << j << " " 
+                << std::setprecision(17) << u.get(i, j, k) << "\n";
+            }
+            myfile << "\n\n";
+        }
+        myfile.close();
+    }
 }
 
 void plot1d(int t1, int t2, int passo, Matriz3D u, int Nx){
