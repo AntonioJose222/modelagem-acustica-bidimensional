@@ -41,7 +41,7 @@ int main() {
     float val;
 
     float fonte(int x, int z, float t, float fcorte, float xs, float zs);
-    float cerjan(int x, int z, int Nx, int Nz, float P0);//funcao usada para impedir reflexoes nas bordas
+    float atenuacao(int x, int z, int Nx, int Nz);//funcao usada para impedir reflexoes nas bordas
     void plot1d(int t1, int t2, int passo, Matriz3D u, int Nx);
 
     bool yet = false;
@@ -71,12 +71,7 @@ int main() {
                 + 2*u.get(i, j, k) - u.get(i, j, k - 1) - 
                 pow(c*dt, 2) * fonte(i, j, k*dt, fcorte, xs, zs);
 
-                //val = cerjan(i, j, Nx, Nz, val);
-                /*
-                if(i == 150 && j == 150 && k <= 50){
-                    cout << "t = " << fixed << setprecision(5) << k*0.00025 << " fonte = " << fonte(i, j, k*dt, fcorte, xs, zs) 
-                    << "; u = " << u.get(i, j, k) << endl;
-                }*/
+                val = val*atenuacao(i, j, Nx, Nz);
 
                 u.set(i, j, k + 1, val);
             
@@ -134,19 +129,19 @@ float fonte(int x, int z, float t, float fcorte, float xs, float zs){
 
 }
 
-float cerjan(int x, int z, int Nx, int Nz, float P0){
+float atenuacao(int x, int z, int Nx, int Nz){
 
     int n = 15;
     if (x < n){
-        return P0 / pow(M_e, pow(0.98*(n - x), 2));
+        return pow(M_e, -1*pow(0.98*(n - x), 2));
     } else if (x > Nx - n){
-        return P0 / pow(M_e, pow(0.98*(n - (Nx - x)), 2));
+        return pow(M_e, -1*pow(0.98*(n - (Nx - x)), 2));
     } else if (z < n){
-        return P0 / pow(M_e, pow(0.98*(n - z), 2));
+        return pow(M_e, -1*pow(0.98*(n - z), 2));
     } else if (z > Nz - n){
-        return P0 / pow(M_e, pow(0.98*(n - (Nz - z)), 2));
+        return pow(M_e, -1*pow(0.98*(n - (Nz - z)), 2));
     } else {
-        return P0;
+        return 1.0;
     }
 
 }
