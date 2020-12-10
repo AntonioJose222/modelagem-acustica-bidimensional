@@ -30,7 +30,7 @@ int main() {
     int Nt = T/dt; //Iteracoes no tempo
 
     int xs = 150; //posicao da fonte em x
-    int zs = 150; //posicao da fonte em z
+    int zs = 20; //posicao da fonte em z
     float cou = c*dt/dx; //numero de courant, para dx = dz
 
     cout << "Nx = " << Nx << endl;
@@ -86,8 +86,10 @@ int main() {
         myfile.open("/home/antonio/IC/modelagem_acustica_bidimensional/data/data" + to_string(k/50) + base);
         for (int j = 0; j < Nz; j++){
             for (int i = 0; i < Nx; i++){
-                myfile << i << " " << j << " " 
-                << std::setprecision(17) << u.get(i, j, k) << "\n";
+                myfile << i << " " << j << " " << std::setprecision(17) << u.get(i, j, k) << "\n";
+                if (i == 150 && j == 13){
+                    cout << "u(" << i << ", " << j << ", " << k << ") = " << u.get(i, j, k) << endl;
+                }
             }
             myfile << "\n\n";
         }
